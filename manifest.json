@@ -2,7 +2,7 @@
   "id": "vokabeltrainer-latein-unique",
   "name": "MM Vokabel Trainer Latein",
   "short_name": "Latein",
-  "start_url": "./indexLatein.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f3f4f6",
   "theme_color": "#8b3a2b",
