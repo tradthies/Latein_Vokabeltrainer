@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vokabel-Trainer</title>
+    <title>Latein-Vokabel-Trainer</title>
 
     <!-- PWA Verknüpfungen -->
     <link rel="manifest" href="manifest.json">
@@ -22,6 +22,27 @@
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        indigo: {
+                            50: '#f8f0ef',   /* Sehr heller Hintergrund */
+                            200: '#dcbab4',  /* Heller Text für inaktive Tabs */
+                            500: '#a84634',  /* Fokus-Ränder */
+                            600: '#8b3a2b',  /* Deine Wunschfarbe! Haupt-Buttons */
+                            700: '#6e2e22',  /* Dunkler für Hover-Effekte */
+                            900: '#451d15',  /* Sehr dunkler Text für Vokabeln */
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
         .fade-in { animation: fadeIn 0.2s ease-in-out; }
         @keyframes fadeIn {
@@ -32,10 +53,10 @@
         
         .custom-checkbox {
             appearance: none;
-            width: 1.5rem;
-            height: 1.5rem;
+            width: 1.2rem;
+            height: 1.2rem;
             border: 2px solid #cbd5e1;
-            border-radius: 0.375rem;
+            border-radius: 0.25rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -44,13 +65,13 @@
             flex-shrink: 0;
         }
         .custom-checkbox:checked {
-            background-color: #4f46e5;
-            border-color: #4f46e5;
+            background-color: #8b3a2b;
+            border-color: #8b3a2b;
         }
         .custom-checkbox:checked::after {
             content: '✓';
             color: white;
-            font-size: 1rem;
+            font-size: 0.85rem;
             font-weight: bold;
         }
     </style>
@@ -102,12 +123,9 @@
         <!-- LISTE -->
         <section id="view-liste" class="w-full hidden fade-in flex-col h-full">
             <h2 class="text-xl font-bold text-gray-700 mb-4 bg-white p-4 rounded-xl shadow-sm text-center">Alle Vokabeln</h2>
-            
-            <!-- Suchfeld -->
             <div class="mb-4">
                 <input type="text" id="search-liste" onkeyup="renderList()" placeholder="Vokabeln suchen..." class="w-full p-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition-all">
             </div>
-
             <div id="vocab-list-container" class="flex flex-col gap-3 pb-8 overflow-y-auto"></div>
             <div id="list-empty-state" class="text-center text-gray-500 hidden mt-10">
                 <p>Noch keine Vokabeln vorhanden.</p>
@@ -118,42 +136,46 @@
         <section id="view-abfrage" class="w-full flex fade-in flex-col items-center justify-center h-full">
             
             <!-- Filter Selection -->
-            <div id="quiz-filter-view" class="w-full bg-white p-5 rounded-2xl shadow-lg mb-auto mt-4 overflow-y-auto flex-1">
-                <h2 class="text-xl font-bold text-gray-700 mb-4 border-b pb-2">Filter wählen</h2>
+            <div id="quiz-filter-view" class="w-full bg-white p-4 rounded-2xl shadow-lg mb-auto mt-2 overflow-y-auto flex-1">
+                <h2 class="text-lg font-bold text-gray-700 mb-3 border-b pb-1">Filter wählen</h2>
                 
-                <!-- NEU: Alle an-/abwählen -->
-                <div class="flex gap-2 mb-4">
-                    <button onclick="toggleAllFilters(true)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium py-2 rounded-lg border border-gray-200 transition-colors">Alle anwählen</button>
-                    <button onclick="toggleAllFilters(false)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium py-2 rounded-lg border border-gray-200 transition-colors">Alle abwählen</button>
+                <!-- Alle an-/abwählen -->
+                <div class="flex gap-2 mb-3">
+                    <button onclick="toggleAllFilters(true)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-1.5 rounded-lg border border-gray-200 transition-colors">Alle anwählen</button>
+                    <button onclick="toggleAllFilters(false)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-1.5 rounded-lg border border-gray-200 transition-colors">Alle abwählen</button>
                 </div>
 
-                <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-3">
                     <div>
-                        <h3 class="font-semibold text-gray-600 mb-2">Lehrkasten</h3>
-                        <div id="filter-lk-container" class="grid grid-cols-2 gap-2 max-h-[30vh] overflow-y-auto p-1"></div>
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-semibold text-gray-600 text-sm">Lehrkasten</h3>
+                            <!-- Suchfeld für Lehrkästen -->
+                            <input type="text" id="search-filter-lk" onkeyup="filterLektionCheckboxes()" placeholder="Suchen..." class="text-xs px-2 py-1 bg-gray-50 border border-gray-200 rounded-lg w-28 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div id="filter-lk-container" class="grid grid-cols-3 gap-1.5 max-h-[22vh] overflow-y-auto p-1 bg-gray-50 rounded-xl border border-gray-100"></div>
                     </div>
+
                     <div class="border-t pt-2">
-                        <h3 class="font-semibold text-gray-600 mb-2">Seite</h3>
-                        <div id="filter-seite-container" class="grid grid-cols-2 gap-2 max-h-[30vh] overflow-y-auto p-1"></div>
+                        <h3 class="font-semibold text-gray-600 text-sm mb-1">Seiten</h3>
+                        <div id="filter-seite-container" class="grid grid-cols-3 gap-1.5 max-h-[22vh] overflow-y-auto p-1 bg-gray-50 rounded-xl border border-gray-100"></div>
                     </div>
                 </div>
 
-                <p class="text-xs text-gray-500 mt-4 text-center">
-                    Ohne Auswahl werden alle Werte dieser Kategorie abgefragt.
+                <p class="text-[11px] text-gray-400 mt-2 text-center">
+                    Ohne Auswahl werden alle Werte abgefragt.
                 </p>
 
-                <button onclick="startFilteredQuiz()" class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-md active:scale-95 transition-transform">
+                <button onclick="startFilteredQuiz()" class="mt-3 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md active:scale-95 transition-transform text-sm">
                     Abfrage starten
                 </button>
 
-                <div class="mt-3 flex items-stretch gap-2">
+                <div class="mt-2 flex items-stretch gap-2">
                     <input type="number" id="quiz-count" value="10" min="5" step="5" inputmode="numeric"
-                        class="w-24 text-center text-lg font-semibold border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none">
-                    <button onclick="startQuizWithCount()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-md active:scale-95 transition-transform">
-                        Quiz
+                        class="w-20 text-center text-base font-semibold border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none">
+                    <button onclick="startQuizWithCount()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-md active:scale-95 transition-transform text-sm">
+                        Quiz (Zufall)
                     </button>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-center">Quiz: Zufällige Vokabeln in der angegebenen Anzahl.</p>
             </div>
 
             <!-- Flashcard Quiz -->
@@ -222,46 +244,23 @@
         <section id="view-daten" class="w-full hidden fade-in bg-white p-6 rounded-2xl shadow-lg mt-4 overflow-y-auto h-auto mb-auto">
             <h2 class="text-xl font-bold text-gray-700 mb-6 text-center">Datenverwaltung</h2>
             <div class="flex flex-col gap-6">
-                <!-- CSV Import -->
                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
                     <h3 class="font-semibold text-blue-800 mb-2">CSV Massen-Import</h3>
-                    <p class="text-sm text-blue-600 mb-3">
-                        <strong>5 Spalten erwartet:</strong><br>
-                        1. Lehrkasten + Kasten<br>2. Seite<br>3. Latein<br>4. Zusatz<br>5. Deutsch
-                    </p>
                     <input type="file" id="csv-upload" accept=".csv" class="hidden" onchange="importCSV(event)">
-                    <button onclick="document.getElementById('csv-upload').click()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                        CSV auswählen
-                    </button>
+                    <button onclick="document.getElementById('csv-upload').click()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">CSV auswählen</button>
                 </div>
-
-                <!-- Export -->
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
                     <h3 class="font-semibold text-gray-700 mb-2">JSON Backup (Export)</h3>
-                    <button onclick="exportJSON()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                        Exportieren
-                    </button>
+                    <button onclick="exportJSON()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">Exportieren</button>
                 </div>
-
-                <!-- JSON Import -->
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
                     <h3 class="font-semibold text-gray-700 mb-2">JSON Backup laden</h3>
                     <input type="file" id="json-upload" accept=".json" class="hidden" onchange="importJSON(event)">
-                    <button onclick="document.getElementById('json-upload').click()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                        JSON auswählen
-                    </button>
+                    <button onclick="document.getElementById('json-upload').click()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">JSON auswählen</button>
                 </div>
-
-                <!-- Alle löschen -->
                 <div class="bg-red-50 p-4 rounded-xl border border-red-200">
                     <h3 class="font-semibold text-red-800 mb-2">Alle Einträge löschen</h3>
-                    <button onclick="deleteAllVocabs()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                        Alles löschen
-                    </button>
+                    <button onclick="deleteAllVocabs()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">Alles löschen</button>
                 </div>
             </div>
         </section>
@@ -284,10 +283,7 @@
                         return v;
                     });
                 }
-            } catch (e) {
-                console.error("Fehler beim Laden", e);
-                vocabList = [];
-            }
+            } catch (e) { vocabList = []; }
         }
 
         function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(vocabList)); }
@@ -310,7 +306,7 @@
             });
             if (tabName === 'liste') {
                 const searchInput = document.getElementById('search-liste');
-                if(searchInput) searchInput.value = ''; // Reset search on tab switch
+                if(searchInput) searchInput.value = ''; 
                 renderList();
             }
             if (tabName === 'abfrage') initAbfrageTab();
@@ -372,14 +368,12 @@
             const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
             
             container.innerHTML = '';
-            
             if (vocabList.length === 0) {
                 emptyState.classList.remove('hidden');
                 emptyState.innerHTML = '<p>Noch keine Vokabeln vorhanden.</p>';
                 if(searchInput) searchInput.parentElement.style.display = 'none';
                 return;
             }
-            
             if(searchInput) searchInput.parentElement.style.display = 'block';
 
             const displayList = vocabList.filter(v => {
@@ -398,11 +392,10 @@
             }
             
             emptyState.classList.add('hidden');
-            
             displayList.forEach((v) => {
-                const idx = vocabList.indexOf(v); // preserve original index for actions
+                const idx = vocabList.indexOf(v); 
                 const item = document.createElement('div');
-                item.className = 'bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-2';
+                item.className = 'bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-1';
                 let metaArr = [];
                 if(v.lehrkastenKasten) metaArr.push(v.lehrkastenKasten);
                 if(v.seite) metaArr.push("S. " + v.seite);
@@ -410,16 +403,16 @@
                 item.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div>
-                            <div class="font-bold text-lg text-indigo-900">${v.latein}</div>
-                            <div class="text-sm text-gray-600 italic">${v.zusatz}</div>
-                            <div class="text-md text-gray-800 mt-1">${v.deutsch}</div>
+                            <div class="font-bold text-base text-indigo-900">${v.latein}</div>
+                            <div class="text-xs text-gray-600 italic">${v.zusatz}</div>
+                            <div class="text-sm text-gray-800 mt-0.5">${v.deutsch}</div>
                         </div>
-                        <div class="flex gap-2">
-                            <button onclick="editVocab(${idx})" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-2 rounded-lg">✏️</button>
-                            <button onclick="deleteVocab(${idx})" class="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded-lg">🗑️</button>
+                        <div class="flex gap-1">
+                            <button onclick="editVocab(${idx})" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-1.5 rounded-lg text-sm">✏️</button>
+                            <button onclick="deleteVocab(${idx})" class="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded-lg text-sm">🗑️</button>
                         </div>
                     </div>
-                    <div class="text-xs text-gray-400 mt-2 border-t pt-2">${metaText}</div>
+                    <div class="text-[11px] text-gray-400 mt-1 border-t pt-1">${metaText}</div>
                 `;
                 container.appendChild(item);
             });
@@ -469,6 +462,7 @@
                 cardView.classList.add('hidden');
                 document.getElementById('quiz-done-view').classList.add('hidden');
                 filterView.classList.remove('hidden');
+                document.getElementById('search-filter-lk').value = '';
                 buildFilterCheckboxes();
             }
         }
@@ -489,14 +483,14 @@
             const setSeite = new Set();
 
             vocabList.forEach(v => {
-                setLK.add(v.lehrkastenKasten ? v.lehrkastenKasten.trim() : "Ohne Zuweisung");
-                setSeite.add(v.seite ? v.seite.trim() : "Ohne Seite");
+                setLK.add(v.lehrkastenKasten ? v.lehrkastenKasten.trim() : "Ohne");
+                setSeite.add(v.seite ? v.seite.trim() : "-");
             });
 
             const createCb = (val, cssClass) => `
-                <label class="flex items-center gap-2 p-2 hover:bg-gray-50 bg-white rounded-lg cursor-pointer border border-gray-200 shadow-sm overflow-hidden" title="${val}">
-                    <input type="checkbox" class="custom-checkbox ${cssClass} scale-90" value="${val}" checked>
-                    <span class="text-sm text-gray-700 font-medium truncate ${val.startsWith('Ohne') ? 'italic text-gray-400' : ''}">${val}</span>
+                <label class="flex items-center gap-1.5 p-1.5 hover:bg-white bg-gray-50 rounded-lg cursor-pointer border border-gray-200 overflow-hidden filter-item" data-val="${val.toLowerCase()}" title="${val}">
+                    <input type="checkbox" class="custom-checkbox ${cssClass} scale-75" value="${val}" checked>
+                    <span class="text-xs text-gray-700 font-medium truncate ${val === 'Ohne' || val === '-' ? 'italic text-gray-400' : ''}">${val}</span>
                 </label>
             `;
 
@@ -504,10 +498,26 @@
             Array.from(setSeite).sort((a,b) => a.localeCompare(b, undefined, {numeric: true})).forEach(val => seiteContainer.innerHTML += createCb(val, 'filter-cb-seite'));
         }
 
-        // NEU: Funktion zum An-/Abwählen aller Checkboxen
+        function filterLektionCheckboxes() {
+            const term = document.getElementById('search-filter-lk').value.toLowerCase();
+            const items = document.querySelectorAll('#filter-lk-container .filter-item');
+            items.forEach(item => {
+                const val = item.getAttribute('data-val');
+                if (val.includes(term)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
         function toggleAllFilters(state) {
             document.querySelectorAll('.custom-checkbox').forEach(cb => {
-                cb.checked = state;
+                // Nur sichtbare Checkboxen umschalten
+                const label = cb.closest('.filter-item');
+                if (!label || label.style.display !== 'none') {
+                    cb.checked = state;
+                }
             });
         }
 
@@ -528,8 +538,8 @@
             const checkedSeiten = Array.from(document.querySelectorAll('.filter-cb-seite:checked')).map(cb => cb.value);
 
             return vocabList.filter(v => {
-                const lk = v.lehrkastenKasten ? v.lehrkastenKasten.trim() : "Ohne Zuweisung";
-                const seite = v.seite ? v.seite.trim() : "Ohne Seite";
+                const lk = v.lehrkastenKasten ? v.lehrkastenKasten.trim() : "Ohne";
+                const seite = v.seite ? v.seite.trim() : "-";
                 const matchLK = checkedLKs.length === 0 || checkedLKs.includes(lk);
                 const matchSeite = checkedSeiten.length === 0 || checkedSeiten.includes(seite);
                 return matchLK && matchSeite;
@@ -609,8 +619,9 @@
         function renderCard() {
             const v = filteredVocabs[currentIndex];
             document.getElementById('card-latein').textContent = v.latein;
-            document.getElementById('card-zusatz').textContent = v.zusatz;
             document.getElementById('card-deutsch').textContent = v.deutsch;
+            document.getElementById('card-zusatz').textContent = v.zusatz;
+            
             let metaArr = [];
             if (v.lehrkastenKasten) metaArr.push(v.lehrkastenKasten);
             if (v.seite) metaArr.push("S. " + v.seite);
@@ -629,7 +640,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(vocabList, null, 2));
             const dlAnchorElem = document.createElement('a');
             dlAnchorElem.setAttribute("href", dataStr);
-            dlAnchorElem.setAttribute("download", `vokabeln_${new Date().toISOString().split('T')[0]}.json`);
+            dlAnchorElem.setAttribute("download", `latein_vokabeln_${new Date().toISOString().split('T')[0]}.json`);
             document.body.appendChild(dlAnchorElem);
             dlAnchorElem.click();
             document.body.removeChild(dlAnchorElem);
@@ -648,13 +659,6 @@
                 try {
                     const importedData = JSON.parse(e.target.result);
                     if (Array.isArray(importedData)) {
-                        const msg = vocabList.length > 0
-                            ? `Achtung: Die aktuelle Liste (${vocabList.length} Vokabeln) wird durch das Backup (${importedData.length} Vokabeln) ersetzt. Fortfahren?`
-                            : `Backup mit ${importedData.length} Vokabeln laden?`;
-                        if (!confirm(msg)) {
-                            document.getElementById('json-upload').value = '';
-                            return;
-                        }
                         vocabList = importedData.map(v => {
                             if(!v.hasOwnProperty('seite')) v.seite = '';
                             return v;
@@ -663,9 +667,7 @@
                         alert("Backup erfolgreich geladen!");
                         document.getElementById('json-upload').value = '';
                     }
-                } catch (error) {
-                    alert("Fehler beim Lesen. Ist es eine gültige JSON-Datei?");
-                }
+                } catch (error) { alert("Fehler beim Lesen."); }
             };
             reader.readAsText(file);
         }
@@ -678,7 +680,6 @@
                 const text = e.target.result;
                 const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
                 if (lines.length === 0) return alert("Die Datei ist leer.");
-
                 const delimiter = text.includes(';') ? ';' : ',';
                 let importCount = 0;
                 let dupCount = 0;
@@ -686,8 +687,9 @@
 
                 lines.forEach((line, index) => {
                     const cols = line.split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''));
+                    // Hier ignorieren wir die Header-Zeile, falls "latein" vorkommt
                     if (index === 0 && cols.length > 2 && cols[2].toLowerCase().includes('latein')) return;
-                    if (cols.length >= 5 || cols.length >= 3) { 
+                    if (cols.length >= 3) { 
                         const entry = {
                             lehrkastenKasten: cols[0] || '',
                             seite: cols[1] || '',
@@ -702,23 +704,14 @@
                         importCount++;
                     }
                 });
-                if (importCount > 0) {
-                    saveData();
-                    alert(`${importCount} Vokabeln hinzugefügt, ${dupCount} Duplikate übersprungen.`);
-                } else if (dupCount > 0) {
-                    alert(`Keine neuen Vokabeln: ${dupCount} Duplikate übersprungen.`);
-                } else {
-                    alert("Keine gültigen Zeilen gefunden.");
-                }
+                if (importCount > 0) saveData();
+                alert(`${importCount} hinzugefügt, ${dupCount} Duplikate übersprungen.`);
                 document.getElementById('csv-upload').value = '';
             };
             reader.readAsText(file);
         }
 
-        window.onload = () => {
-            loadData();
-            switchTab('abfrage');
-        };
+        window.onload = () => { loadData(); switchTab('abfrage'); };
     </script>
 </body>
 </html>
